@@ -94,13 +94,14 @@ dzm.kol all_kol,
  mat.name as material, mat.id as mat_id,
 dz.id as zpok_id, mat_t.name as mat_type,
 uch.name as uch, uch.id as uch_id,
-mat_t.id as mat_type_id, un.name as unit, IFNULL(usrp.login_name,\'не задан прораб\') as prorab
+mat_t.id as mat_type_id, un.name as unit, IFNULL(usrp.login_name,\'не задан прораб\') as prorab, pos.name as pos
 FROM docs_zpok_materials dzm 
 			LEFT JOIN docs_zpok as dz ON dz.id = dzm.zpost_id
 			LEFT JOIN real_doma_works_materials as rdwm ON rdwm.id = dzm.rdwm_id
 			LEFT JOIN materials as mat ON mat.id = rdwm.material_id
 			LEFT JOIN materials_types as mat_t ON mat_t.id = mat.type_id
 			LEFT JOIN uchastok as uch ON uch.id = dz.uchastok_id
+			LEFT JOIN mesto as pos ON pos.id = uch.mesto_id
 			LEFT JOIN stroyka as str ON str.id = rdwm.stroyka_id
 			LEFT JOIN b2b_users as usrp ON usrp.id = str.prorab_id
 			LEFT JOIN units as un ON un.id = mat.unit_id
@@ -197,12 +198,13 @@ elseif(preg_match('~^zakup/edit/([0-9]+)/$~ms', $Path, $q)) {
 		$kol = intval($_POST['kol']);
 
 		$res = MySQL::query(" 
-			INSERT INTO docs_zakup_zpok (materials_id, kol, zakup_id, uchastok_id) 
+			INSERT INTO docs_zakup_zpok (materials_id, kol, zakup_id, uchastok_id, price) 
 				VALUES (
 					'{$material_id}',
 					'{$kol}',
 					'{$zpost_id}',
-					'{$uchastok_id}'
+					'{$uchastok_id}',
+					(SELECT price FROM materials where id = '{$material_id}')
 				)
 		");
 		
@@ -212,7 +214,8 @@ elseif(preg_match('~^zakup/edit/([0-9]+)/$~ms', $Path, $q)) {
 
 	$zpok = MySQL::fetchAllArray('SELECT dzz.id, dzz.kol,dz.id as zpost_id, zayvka.id as zpok_id, DATE_FORMAT(dz.start_date,"%d.%m.%Y") as doc_date,
 DATE_FORMAT(dzml.date_zak,"%d.%m.%Y") as zakupkadate, DATE_FORMAT(zayvka.postup_date,"%d.%m.%Y") as postup_date,
-IF(dzz.price>0,dzz.kol*dzz.price,dzz.kol* 0) as all_summ,
+IF(dzz.price>0,dzz.kol*dzz.price,dzz.kol*dzz.price) as all_summ,
+IF(dzz.price>0,dzz.price,dzz.price) as doc_price,
 usr.login_name as username, vs.id as vendor_id, mat.name as material, mat_t.name as mat_type,
 CONCAT(uch.name," / ", pos.name) as sklad, un.name as unit
 FROM docs_zakup_zpok dzz 

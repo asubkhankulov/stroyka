@@ -46,7 +46,7 @@
                                 <th align="center">План, кол.</th>
 
 	                            <th align="center">Пост.</th>
-	                            <th align="center">В пути</th>
+	                            <th align="center">В заявках</th>
 	                            <th align="center">Ожидается</th>
 
                                 <th style="width: 5%" align="center">Потребность</th>

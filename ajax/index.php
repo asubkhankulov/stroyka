@@ -725,6 +725,41 @@ DATE_FORMAT(D7OffDateTime,'%Y-%m-%d %H:00:00') + INTERVAL 1 HOUR as next,
                 	
                     
                 break;
+                case 'update_zpost_value': 
+                	
+        			$id = intval($_POST['id']);
+	        		$val1 = floatval(str_replace(',','.',$_POST['price']));
+					$val1 = round($val1,2);
+
+					$val2 = floatval(str_replace(',','.',$_POST['kol']));
+					$val2 = round($val2,2);
+        			
+        			if(!empty($val2) and MySQL::query("UPDATE docs_zakup_zpok SET price = '{$val1}', kol = '{$val2}' WHERE id = '{$id}'")) {
+       					echo 'ok';
+        			}
+        			elseif(empty($val2) and MySQL::query("UPDATE docs_zakup_zpok SET price = '{$val1}' WHERE id = '{$id}'")) {
+       					echo 'ok';
+        			}
+        			else {
+        				echo 'Ошибка!';
+        			}
+                	
+                    
+                break;
+                case 'update_zpost_vendor': 
+                	
+        			$id = intval($_POST['id']);
+        			$vendors_id = intval($_POST['vendors_id']);
+        			
+        			if(MySQL::query("UPDATE docs_zakup SET vendors_id = '{$vendors_id}' WHERE id = '{$id}'")) {
+       					echo 'ok';
+        			}
+        			else {
+        				echo 'Ошибка!';
+        			}
+                	
+                    
+                break;
                 case 'del_auto': //mesto/
                 	
         			$id = intval($_POST['id']);

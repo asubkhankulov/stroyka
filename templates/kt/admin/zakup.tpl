@@ -110,7 +110,7 @@
                             <tr id="zpost_{$zpost[zpo].id}">
                                 <td>{{$smarty.section.zpo.iteration}}</td>
                                 <td>{$zpost[zpo].id}</td>
-                                <td><a href="#">{$zpost[zpo].doc_date}</a></td>
+                                <td><a href="/zakup/edit/{$zpost[zpo].id}/">{$zpost[zpo].doc_date}</a></td>
                                 <td>{$zpost[zpo].vendor}</td>
                                 <td>{$zpost[zpo].kols}</td>
                                 <td>{$zpost[zpo].all_summ}</td>

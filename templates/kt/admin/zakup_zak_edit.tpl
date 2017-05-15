@@ -14,11 +14,12 @@
 					<form class="form-inline" role="form">			  
 						<div class="form-group">
 					    <label for="vendors_id">Поставщик:</label>
-						<select class="form-control" name="vendors_id">
+						<select class="form-control" name="vendors_id" id="vendors_id">
 							<option value="0">не выбран</option>
 							{html_options values=$list_ven_val output=$list_ven_name selected=$zpok[0].vendor_id}
 						</select>
 					  </div>
+					  <button class="btn btn-primary" type="button" onclick="UpdateVendor(this);" data-toggle="tooltip" data-placement="right" data-trigger="manual" title="Сохранено..."><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
 				   </form>	
 					<hr>
 	                    <table class="table table-striped table-bordered table-list">
@@ -57,7 +58,7 @@
 	                                <td>{$zpok[zpo].postup_date|default:'-'}</td>
 	                                <td><input type="text" class="form-control" name="price" value="{$zpok[zpo].doc_price}" id="{$zpok[zpo].id}_price"></td>
 	                                <td>{$zpok[zpo].kol*$zpok[zpo].doc_price}</td>
-	                                <td align="center"> <button class="btn btn-primary" type="button" onclick="UpdateField_({$zpok[zpo].id},this);" data-toggle="tooltip" data-placement="right" data-trigger="manual" title="Сохранено..."><i class="fa fa-floppy-o" aria-hidden="true"></i></button> <button type="button" class="btn btn-danger" title="Удалить" data-toggle="modal" data-target="#deldlg" data-whatever="{$zpok[zpo].id}"><em class="fa fa-trash"></em></button></td>
+	                                <td align="center"> <button class="btn btn-primary" type="button" onclick="UpdateField({$zpok[zpo].id},{$zpok[zpo].zpok_id|default:0},this);" data-toggle="tooltip" data-placement="right" data-trigger="manual" title="Сохранено..."><i class="fa fa-floppy-o" aria-hidden="true"></i></button> <button type="button" class="btn btn-danger" title="Удалить" data-toggle="modal" data-target="#deldlg" data-whatever="{$zpok[zpo].id}"><em class="fa fa-trash"></em></button></td>
 	                            </tr>
 	                            {assign var=all_summ value=$all_summ+$zpok[zpo].kol*$zpok[zpo].doc_price}
 	                            {assign var=all_kol value=$all_kol+$zpok[zpo].kol}
@@ -66,6 +67,7 @@
 	                        <tfoot>
 	                         <tr class="active">
 	                             <td><b>Итого:</b></td>
+	                             <td></td>
 	                             <td></td>
 	                             <td></td>
 	                             <td></td>
@@ -151,10 +153,16 @@
 			    
 			var field = '';        
 
-			UpdateField = function(field_id, obj) {
+			UpdateField = function(field_id, zpok_id, obj) {
 				
 				var val1 = $("#"+field_id+"_price").val();
-				var val2 = $("#"+field_id+"_kol").val();
+				if (zpok_id == 0){
+					var val2 = $("#"+field_id+"_kol").val();
+				}
+				else {
+					var val2 = 0;
+				}
+				
 				if (field != '') $(field).tooltip('hide');
 				field = obj;
 				
@@ -162,7 +170,7 @@
 				url = '/ajax/index.php';       
 	            $.post(url,
 	            {
-	                'action': 'update_zpok',
+	                'action': 'update_zpost_value',
 	                'id': field_id,
 	                'price': val1,
 	                'kol': val2
@@ -172,7 +180,31 @@
 	            	switch(data) {
 	                case 'ok':
 	                	$(field).tooltip('show');
-	                	window.location = '/stroyka/zak/{$uchastok_id}/{$zpok_id}/';
+	                	//window.location = '/zakup/edit/{$zpok[0].zpost_id}/';
+	                    break
+	                default:
+	                	$(field).tooltip(data);
+	            }
+
+
+				});
+			}
+			
+			UpdateVendor = function(obj) {
+				field = obj;
+				var val1 = $( "#vendors_id option:selected" ).val();
+				url = '/ajax/index.php';       
+	            $.post(url,
+	            {
+	                'action': 'update_zpost_vendor',
+	                'id': {$zpok[0].zpost_id|default:'0'},
+	                'vendors_id': val1
+	            }, checkTime = function(data) {
+					
+
+	            	switch(data) {
+	                case 'ok':
+	                	$(field).tooltip('show');
 	                    break
 	                default:
 	                	$(field).tooltip(data);
